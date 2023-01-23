@@ -3,8 +3,8 @@ import { Link } from "react-router-dom";
 
 
 
-export class navbar extends Component {
-  render() {
+const Navbar =()=>{
+ 
     return (
        
         <nav className="navbar navbar-expand-lg navbar-dark bg-dark">
@@ -36,7 +36,7 @@ export class navbar extends Component {
 </nav>
      
     );
-  }
+ 
 }
 
-export default navbar;
+export default Navbar;

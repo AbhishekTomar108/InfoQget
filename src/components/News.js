@@ -1,56 +1,48 @@
-import React, { Component } from "react";
+import React, { useEffect, useState } from "react";
 import NewsItem from "./NewsItem";
 import Spinner from './Spinner';
 import InfiniteScroll from 'react-infinite-scroll-component';
 
 
-export class News extends Component {
+const News = (props)=> {
     
-   
+   const [articles, setarticles] = useState([])
+  //  const [loading, setloading] = useState(false)
+   const [page, setpage] = useState(1)
+   const [totalresults, settotalresults] = useState(0)
 
-   constructor()
-    {
-        super();
-        console.log("i am news constructor");
-        
-        this.state= 
-            {
-                articles:[],
-                loading:false,
-                page:1,
-                totalresults:1
-                
-            }
-        
-       
-    }
 
-    capitalize = (text)=>
+    const capitalize = (text)=>
     {
        return text.charAt(0).toUpperCase()+text.slice(1);
     }
-    async componentDidMount()
-    {
-        console.log("from cdm");
-         this.updatenews();
-    }
+    useEffect(() => {
+    
+      updatenews();
+    }, []);
+    // async componentDidMount()
+    // {
+    //     console.log("from cdm");
+        
+    // }
 
-    updatenews = async()=>
+    const updatenews = async()=>
     {
-      // this.setState({loading:true})
+      // this.setState({loading:true}) 
       // console.log("i am news previous");
-      console.log(this.props.apikey);
-      document.title=`${this.capitalize(this.props.category)}-InfoQget`;
-      let url = `https://newsapi.org/v2/top-headlines?country=in&category=${this.props.category}&apiKey=${this.props.apikey}&page=${this.state.page}&pageSize=${this.props.pagesize}`;
-      this.props.setprogress(40);
+      console.log(props.apikey);
+      document.title=`${capitalize(props.category)}-InfoQget`;
+      let url = `https://newsapi.org/v2/top-headlines?country=in&category=${props.category}&apiKey=${props.apikey}&page=${page}&pageSize=${props.pagesize}`;
+      props.setprogress(40);
       let data = await fetch(url);
-      this.props.setprogress(80);
+      props.setprogress(80);
       let parseddata = await data.json();
-      this.props.setprogress(100);
-      console.log(parseddata);
+      props.setprogress(100);
+      console.log("type of articles is "+typeof(articles));
 
       console.log('chal rha h parsedata se pehle');
-      this.setState({articles: parseddata.articles, totalresults:parseddata.totalResults});
+      setarticles(parseddata.articles);
+        settotalresults(parseddata.totalResults)
 
     }
 
@@ -70,40 +62,39 @@ export class News extends Component {
       
     // }
 
-    fetchMoreData = async() => {
+    const fetchMoreData = async() => {
       // this.setState({loading:true})
-      this.setState({page:this.state.page+1});
-      // console.log("i am news previous");
-      document.title=`${this.capitalize(this.props.category)}-InfoQget`;
-      let url = `https://newsapi.org/v2/top-headlines?country=in&category=${this.props.category}&apiKey=${this.props.apikey}&page=${this.state.page+1}&pageSize=${this.props.pagesize}`;
+      setpage(page+1);
+     
+      document.title=`${capitalize(props.category)}-InfoQget`;
+      let url = `https://newsapi.org/v2/top-headlines?country=in&category=${props.category}&apiKey=${props.apikey}&page=${page+1}&pageSize=${props.pagesize}`;
       let data = await fetch(url);
 
-      let parseddata = await data.json();
-      console.log(parseddata);
-
-      console.log('chal rha h parsedata se pehle');
-      this.setState({articles: this.state.articles.concat(parseddata.articles), totalresults:parseddata.totalResults});
+      let parseddata = await data.json()    
+      setarticles(articles.concat(parseddata.articles));
+      settotalresults(parseddata.totalResults)
+      console.log("i am from fetchmore "+articles.length,typeof(articles),page);
+      // this.setState({articles: this.state.articles.concat(parseddata.articles), totalresults:parseddata.totalResults});
           // this.setState({articles: this.state.articles.concat(this.state.articles)})
       
     };
 
-  render() {
-    // console.log("i am news render");
+  
+    
     return (
      <>
-        <h2 className='text-center my-3'>InfoQget-Top {this.props.category} Headlines</h2>
+        <h2 className='text-center my-3'>InfoQget-Top {props.category} Headlines</h2>
       
        <InfiniteScroll
-  dataLength={this.state.articles.length} //This is important field to render the next data
-  next={this.fetchMoreData}
-  hasMore={this.state.articles.length!==this.state.totalresults}
+  dataLength={articles.length} //This is important field to render the next data
+  next={fetchMoreData}
+  hasMore={articles.length!==totalresults}
   loader={<Spinner/>}
   >
   
      <div className="container">
         <div className="row my-3">
-          
-            {this.state.articles.map((element)=>
+            {articles.map((element)=>
             { return <div className="col-md-4" key={element.url}>
            <NewsItem
               titles={element.title?element.title.slice(0,45):""}
@@ -122,7 +113,7 @@ export class News extends Component {
          
   </>
     );
-  }
+
 }
 
 export default News;
